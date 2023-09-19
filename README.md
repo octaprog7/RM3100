@@ -23,6 +23,10 @@ Then open main.py in your IDE and run it.
 ![alt text](https://github.com/octaprog7/RM3100/blob/master/pic/main_view.png)
 ## PCB Board view
 ![alt text](https://github.com/octaprog7/RM3100/blob/master/pic/pcb_view.png)
+## Cross Board
+![alt text](https://github.com/octaprog7/RM3100/blob/master/pic/cross_board_1.jpg)
+![alt text](https://github.com/octaprog7/RM3100/blob/master/pic/cross_board_2.jpg)
+![alt text](https://github.com/octaprog7/RM3100/blob/master/pic/cross_board_3.jpg)
 ## RM3100 on board view
 ![alt text](https://github.com/octaprog7/RM3100/blob/master/pic/rm3100_on_bb.jpg)
 ## IDE
