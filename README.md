@@ -22,5 +22,7 @@ Then open main.py in your IDE and run it.
 ![alt text](https://github.com/octaprog7/GeomagneticSensor/blob/master/ide_temp.png)
 ## PCB Board view
 ![alt text](https://github.com/octaprog7/GeomagneticSensor/blob/master/ide_temp.png)
+## RM3100 on board view
+![alt text](https://github.com/octaprog7/RM3100/blob/master/pic/rm3100_on_bb.jpg)
 ## IDE
 ![alt text](https://github.com/octaprog7/GeomagneticSensor/blob/master/ide_temp.png)
