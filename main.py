@@ -2,8 +2,6 @@
 # mail: goctaprog@gmail.com
 # MIT license
 # import time
-import sys
-# import sys
 # Пожалуйста, прочитайте документацию на RM3100!
 # Please read the RM3100 documentation!
 from machine import I2C, Pin
