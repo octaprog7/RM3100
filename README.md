@@ -1,5 +1,6 @@
 MicroPython module for control RM3100 Geomagnetic Sensor.
 
+# I2C bus
 Just connect (VCC, GND, SDA, SCL) from your HSCDTD008A board to Arduino, ESP or any other board with MicroPython firmware.
 Attention! In this project, the sensor is connected via the I2C bus. Therefore, it is necessary to connect the A0(SA0) and A1(SA1) pins of the board to the GND or VCC! Otherwise, EIO exceptions will be thrown!
 To enable the I2C bus, you need to connect the first (1) pin of the board, it is etched in the form of a square, to the VCC!
