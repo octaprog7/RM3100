@@ -76,3 +76,16 @@ class Iterator:
 
     def __next__(self):
         raise NotImplementedError
+
+
+class TemperatureSensor:
+    """Вспомогательный или основной датчик температуры"""
+    def enable_temp_meas(self, enable: bool):
+        """Включает измерение температуры при enable в Истина
+        Для переопределения программистом!!!"""
+        raise NotImplementedError
+
+    def get_temperature(self) -> [int, float]:
+        """Возвращает температуру корпуса датчика в градусах Цельсия!
+        Для переопределения программистом!!!"""
+        raise NotImplementedError

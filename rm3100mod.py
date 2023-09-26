@@ -5,8 +5,7 @@ import micropython
 # MicroPython
 # mail: goctaprog@gmail.com
 # MIT license
-from sensor_pack import bus_service
-import geosensmod
+from sensor_pack import bus_service, geosensmod
 from sensor_pack.base_sensor import check_value, Iterator
 import time
 
@@ -30,6 +29,14 @@ def _axis_name_to_int(axis_name: str) -> int:
     an = axis_name.lower()
     check_value(ord(an[0]), range(120, 123), f"Invalid axis name: {axis_name}")
     return ord(an[0]) - 120  # 0, 1, 2
+
+
+@micropython.native
+def _int_to_axis_name(axis: int) -> str:
+    """преобразует число в имя оси"""
+    check_value(axis, range(3), f"Invalid axis: {axis}")
+    a = 'x', 'y', 'z'
+    return a[axis]
 
 
 @micropython.native
@@ -78,10 +85,10 @@ class RM3100(geosensmod.GeoMagneticSensor, Iterator):
     """RM3100 Geomagnetic Sensor."""
 
     def __init__(self, adapter: bus_service.BusAdapter, address: int = 0x20):
+        self._update_rate = 6   # 9 Hz
         # адрес в диапазоне 0x20..0x23!
         check_value(address, range(0x20, 0x24), f"Invalid address value: {address}")
         super().__init__(adapter=adapter, address=address, big_byte_order=True)     # big endian
-        # self._mag_field_comp = array.array("h", [0 for _ in range(3)])
         self.setup()
 
     def _read_reg(self, reg_addr: int, bytes_count: int = 1) -> bytes:
@@ -93,16 +100,6 @@ class RM3100(geosensmod.GeoMagneticSensor, Iterator):
         bo = self._get_byteorder_as_str()[0]
         self.adapter.write_register(self.address, reg_addr, value, bytes_count, bo)
 
-    def get_axis(self, axis: int) -> [int, tuple]:
-        method = self.get_meas_result
-        str_axis = 'x', 'y', 'z'
-        if axis >= 0:
-            check_value(axis, range(3), f"Invalid axis value: {axis}")
-            return method(str_axis[axis])
-        if -1 == axis:
-            return method('x'), method('y'), method('z')
-        return None
-
     def _set_update_rate(self, update_rate: int):
         """для режима периодических измерений, устанавливает частоту обновления значений величины магнитного поля
         update_rate должно быть в диапазоне от 0 до 13 включительно, что соответствует частотам:
@@ -110,9 +107,15 @@ class RM3100(geosensmod.GeoMagneticSensor, Iterator):
         check_value(update_rate, range(14), f"Invalid update rate: {update_rate}")
         # Setting the CMM Update Rate with TMRC (0x0B)
         self._write_reg(0x0B, 0x92 + update_rate)
+        self._update_rate = update_rate
 
     def _get_update_rate(self) -> int:
-        return self._read_reg(0x0B)[0] - 0x92
+        self._update_rate = self._read_reg(0x0B)[0] - 0x92
+        return self._update_rate
+
+    def _get_cmm(self) -> int:
+        """Возвращает значение регистра CMM"""
+        return self._read_reg(0x01)[0]
 
     def get_id(self):
         """Возвращает значение (REVID), которое не определено в документации, что странно!
@@ -121,7 +124,12 @@ class RM3100(geosensmod.GeoMagneticSensor, Iterator):
 
     def is_continuous_meas_mode(self):
         """Возвращает Истина, когда включен режим периодических измерений!"""
-        return 0 != 0x01 & self._read_reg(0x01)[0]
+        return 0 != (0x01 & self._get_cmm())
+
+    def is_single_meas_mode(self):
+        """Возвращает Истина, когда включен режим однократных измерений (по запросу)!
+        Для переопределения программистом!!!"""
+        return 0 == (0x01 & self._get_cmm())
 
     def get_status(self) -> tuple:
         """Возвращает кортеж битов(номер бита): DRDY(7), """
@@ -202,16 +210,17 @@ class RM3100(geosensmod.GeoMagneticSensor, Iterator):
         bts = self._read_reg(addr, 2)
         return self.unpack(fmt_char="H", source=bts)[0]
 
-    def get_meas_result(self, axis_name: str) -> int:
-        """Возвращает измеренное значение величины магнитного поля в инженерных единицах по оси axis_name!
-        Каждое показание датчика состоит из 3 байтов данных, которые сохраняются в формате дополнения до 2
-        (диапазон: от -8388608 до 8388607) в регистрах результатов.
-        Чтобы преобразовать это значение в индукцию магнитного поля, нужно его умножить на чувствительность,
-        которая зависит от настроек датчика, смотри Table 3-1: Geomagnetic Sensor Performance"""
-        addr = _axis_name_to_mxyz_addr(axis_name)
-        bts = self._read_reg(reg_addr=addr, bytes_count=3)   # 24 bit value (int24)
-        # print(f'DBG. {_to_str(bts)}')
+    def read_raw(self, axis_name: int) -> int:
+        addr = _axis_name_to_mxyz_addr(_int_to_axis_name(axis_name))
+        bts = self._read_reg(reg_addr=addr, bytes_count=3)  # 24 bit value (int24)
         return _from_bytes(source=bts, big_byte_order=True, signed=True)
+
+    def _get_all_meas_result(self) -> tuple:
+        """Для наибыстрейшего считывания за один вызов всех результатов измерений из датчика по
+        относительно медленной шине! Для переопределения программистом!!!"""
+        bts = self._read_reg(reg_addr=0x24, bytes_count=9)  # 24 bit value (int24)
+        t = (_from_bytes(source=bts[3 * index:3 * (index+1)], big_byte_order=True, signed=True) for index in range(3))
+        return tuple(t)
 
     def setup(self):
         """Настройка режима работы датчика.
