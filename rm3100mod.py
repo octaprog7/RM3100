@@ -85,6 +85,9 @@ class RM3100(geosensmod.GeoMagneticSensor, Iterator):
     """RM3100 Geomagnetic Sensor."""
 
     def __init__(self, adapter: bus_service.BusAdapter, address: int = 0x20):
+        self._buf_2 = bytearray((0 for _ in range(2)))  # для хранения
+        self._buf_3 = bytearray((0 for _ in range(3)))  # для хранения
+        self._buf_9 = bytearray((0 for _ in range(9)))  # для хранения
         self._update_rate = 6   # 9 Hz
         # адрес в диапазоне 0x20..0x23!
         check_value(address, range(0x20, 0x24), f"Invalid address value: {address}")
@@ -94,6 +97,11 @@ class RM3100(geosensmod.GeoMagneticSensor, Iterator):
     def _read_reg(self, reg_addr: int, bytes_count: int = 1) -> bytes:
         """Считывает значение из регистра по адресу регистра 0..0x10. Смотри _get_reg_address"""
         return self.adapter.read_register(self.address, reg_addr, bytes_count)
+
+    def read_buf_from_mem(self, mem_addr: int, buf: bytearray):
+        """Читает из устройства с адресом address в буфер buf, начиная с адреса в устройстве mem_addr.
+        Количество считываемых байт определяется длинной буфера buf."""
+        return self.adapter.read_buf_from_mem(self.address, mem_addr, buf)  # 16 bit value (int16)
 
     def _write_reg(self, reg_addr: int, value: int, bytes_count: int = 1):
         """Записывает в регистр с адресом reg_addr значение value по шине."""
@@ -207,18 +215,24 @@ class RM3100(geosensmod.GeoMagneticSensor, Iterator):
     def get_axis_cycle_count(self, axis_name: str) -> int:
         """Возвращает количество циклов для измерения магнитного поля по оси axis_name!"""
         addr = _axis_name_to_ccr_addr(axis_name)
-        bts = self._read_reg(addr, 2)
+        #bts = self._read_reg(addr, 2)
+        bts = self._buf_2
+        self.read_buf_from_mem(addr, bts)
         return self.unpack(fmt_char="H", source=bts)[0]
 
     def read_raw(self, axis_name: int) -> int:
         addr = _axis_name_to_mxyz_addr(_int_to_axis_name(axis_name))
-        bts = self._read_reg(reg_addr=addr, bytes_count=3)  # 24 bit value (int24)
+        #bts = self._read_reg(reg_addr=addr, bytes_count=3)  # 24 bit value (int24)
+        bts = self._buf_3
+        self.read_buf_from_mem(addr, bts)
         return _from_bytes(source=bts, big_byte_order=True, signed=True)
 
     def _get_all_meas_result(self) -> tuple:
         """Для наибыстрейшего считывания за один вызов всех результатов измерений из датчика по
         относительно медленной шине! Для переопределения программистом!!!"""
-        bts = self._read_reg(reg_addr=0x24, bytes_count=9)  # 24 bit value (int24)
+        #bts = self._read_reg(reg_addr=0x24, bytes_count=9)  # 24 bit value (int24)
+        bts = self._buf_9
+        self.read_buf_from_mem(0x24, bts)
         t = (_from_bytes(source=bts[3 * index:3 * (index+1)], big_byte_order=True, signed=True) for index in range(3))
         return tuple(t)
 

@@ -5,7 +5,7 @@
 # Пожалуйста, прочитайте документацию на RM3100!
 # Please read the RM3100 documentation!
 from machine import I2C, Pin
-
+import math
 import rm3100mod
 import time
 from sensor_pack.bus_service import I2cAdapter
@@ -55,7 +55,9 @@ if __name__ == '__main__':
     for mag_field_comp in sensor:
         delay_func(wt)
         if mag_field_comp:
-            print(f"X: {mag_field_comp[0]}\tY: {mag_field_comp[1]}\tZ: {mag_field_comp[2]}")
+            # напряженность магнитного поля в условных ед.
+            mfs = math.sqrt(sum(map(lambda val: val ** 2, mag_field_comp)))
+            print(f"X: {mag_field_comp[0]}; Y: {mag_field_comp[1]}; Z: {mag_field_comp[2]}; mag field strength: {mfs}")
     # end
     # min_vals = [2**31 for i in range(3)]
     # max_vals = [-2**31 for i in range(3)]
