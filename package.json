@@ -1,0 +1,15 @@
+{
+  "urls": [
+    ["rm3100mod.py", "github:octaprog7/RM3100/rm3100mod.py"],
+    ["sensor_pack/__init__.py", "github:octaprog7/RM3100/sensor_pack/__init__.py"],
+    ["sensor_pack/averager.py", "github:octaprog7/RM3100/sensor_pack/averager.py"],
+    ["sensor_pack/base_sensor.py", "github:octaprog7/RM3100/sensor_pack/base_sensor.py"],
+    ["sensor_pack/bitfield.py", "github:octaprog7/RM3100/sensor_pack/bitfield.py"],
+    ["sensor_pack/bus_service.py", "github:octaprog7/RM3100/sensor_pack/bus_service.py"],
+    ["sensor_pack/converter.py", "github:octaprog7/RM3100/sensor_pack/converter.py"],
+    ["sensor_pack/crc_mod.py", "github:octaprog7/RM3100/sensor_pack/crc_mod.py"],
+    ["sensor_pack/geosensmod.py", "github:octaprog7/RM3100/sensor_pack/geosensmod.py"]
+  ],
+  "version": "1.0.0",
+  "deps": []
+}
