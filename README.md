@@ -1,5 +1,5 @@
-MicroPython module for control RM3100 Geomagnetic Sensor.
-
+# MicroPython module for control RM3100 Geomagnetic Sensor.
+## [На русском](README_RU.md)
 # I2C bus
 Just connect (VCC, GND, SDA, SCL) from your RM3100 board to Arduino, ESP or any other board with MicroPython firmware.
 Attention! In this project, the sensor is connected via the I2C bus. Therefore, it is necessary to connect the A0(SA0) and A1(SA1) pins of the board to the GND or VCC! Otherwise, EIO exceptions will be thrown!
