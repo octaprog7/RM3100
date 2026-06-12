@@ -1,0 +1,31 @@
+{
+  "name": "rm3100",
+  "version": "1.0.1",
+  "author": "octaprog7",
+  "description": "MicroPython driver for RM3100 Geomagnetic Sensor",
+  "license": "MIT",
+  "urls": [
+    [
+      "rm3100mod.py",
+      "github:octaprog7/RM3100/rm3100mod.py"
+    ],
+    [
+      "sensor_pack_2/__init__.py",
+      "github:octaprog7/RM3100/sensor_pack_2/__init__.py"
+    ],
+    [
+      "sensor_pack_2/base_sensor.py",
+      "github:octaprog7/RM3100/sensor_pack_2/base_sensor.py"
+    ],
+    [
+      "sensor_pack_2/bus_service.py",
+      "github:octaprog7/RM3100/sensor_pack_2/bus_service.py"
+    ],
+    [
+      "sensor_pack_2/geosensmod.py",
+      "github:octaprog7/RM3100/sensor_pack_2/geosensmod.py"
+    ]
+  ],
+  "deps": []
+}
+
